@@ -1,0 +1,68 @@
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+    <!-- <property name="entityInterceptor"> <bean class="com.rrr.web.interceptors.TransactionLogInterceptor" 
+      /> </property> -->
+    <property name="dataSource" ref="primaryDataSource" />
+    <property name="annotatedClasses">
+      <list>
+        <value>com.apps.sapps.orm.model.User</value>
+
+      </list>
+    </property>
+    <property name="hibernateProperties">
+      <props>
+        <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+        <!--<prop key="hibernate.dialect">org.hibernate.dialect.MySQLInnoDBDialect</prop> -->
+        <prop key="hibernate.hbm2ddl.auto">update</prop>
+        <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+        <!-- set the next two to true if you want to debug hibernate's SQL -->
+        <prop key="hibernate.show_sql">false</prop>
+        <prop key="hibernate.format_sql">false</prop>
+      </props>
+    </property>
+  </bean>
+
+  <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="txInterceptor"
+    class="org.springframework.transaction.interceptor.TransactionInterceptor">
+    <property name="transactionManager" ref="transactionManager" />
+    <property name="transactionAttributeSource">
+      <bean
+        class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource" />
+    </property>
+  </bean>
+
+
+  <bean id="primaryDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+    <property name="driverClassName" value="${primaryDataSource.driverClassName}" />
+    <property name="url" value="${primaryDataSource.url}" />
+    <property name="username" value="${primaryDataSource.username}" />
+    <property name="password" value="${primaryDataSource.password}" />
+    <property name="maxActive" value="${primaryDataSource.maxActive}" />
+    <property name="maxIdle" value="${primaryDataSource.maxIdle}" />
+    <property name="maxWait" value="${primaryDataSource.maxWait}" />
+    <property name="removeAbandoned" value="${primaryDataSource.removeAbandoned}" />
+    <property name="removeAbandonedTimeout" value="${primaryDataSource.removeAbandonedTimeout}" />
+    <property name="logAbandoned" value="${primaryDataSource.logAbandoned}" />
+    <property name="validationQuery" value="${primaryDataSource.validationQuery}" />
+  </bean>
+
+
+  <tx:annotation-driven transaction-manager="transactionManager"
+    proxy-target-class="true" />
+
+
+  <!-- this is required to be set -->
+  <!-- <bean id="dao" class="com.apps.sapps.orm.util.HibernateDao">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean> -->
+
+</beans>
